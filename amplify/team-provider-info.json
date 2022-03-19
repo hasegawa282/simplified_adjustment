@@ -10,6 +10,11 @@
       "StackName": "amplify-simplifiedadjustment-dev-234222",
       "StackId": "arn:aws:cloudformation:ap-northeast-1:406423233609:stack/amplify-simplifiedadjustment-dev-234222/4c581cb0-a537-11ec-876f-06d9f267edcf",
       "AmplifyAppId": "due48bybwr6on"
+    },
+    "categories": {
+      "auth": {
+        "simplifiedadjustmentbefaa58c": {}
+      }
     }
   }
 }

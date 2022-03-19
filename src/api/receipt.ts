@@ -44,9 +44,6 @@ export const getReceiptItemHistories = async (param: {
     },
     queryStringParameters: param,
   };
-  console.log(myInit)
-  console.log(process.env.REACT_APP_END_POINT)
-  console.log(process.env)
   const res = await API.get('receipt', '/receipt', myInit)
   console.log(res)
   return res
@@ -68,6 +65,7 @@ export const getReceiptItemHistories = async (param: {
 // [POST] /receiptItemHistoryPost
 export const postReceiptItemHistory = async (param: ReceiptItemHistory) => {
   const token = await getToken()
+  console.log(token)
   const myInit = {
     headers: {
       Authorization: token,
@@ -76,8 +74,6 @@ export const postReceiptItemHistory = async (param: ReceiptItemHistory) => {
       param: param,
     },
   };
-  console.log(process.env.REACT_APP_END_POINT)
-  console.log(process.env)
   const res = await API.post('receipt', '/receipt', myInit)
   return res
 }
