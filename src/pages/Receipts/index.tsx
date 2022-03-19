@@ -46,20 +46,20 @@ const Receipts: React.FC = () => {
     return headers
   }
 
-  const getCsvs = async (callback: (process?: boolean) => void) => {
+  const getCsvs = async () => {
     if (!start) {
       AlertDialog.show('開始時刻は必須項目です');
-      callback(false)
+      // callback(false)
       return
     }
     if (!end) {
       AlertDialog.show('終了時刻は必須項目です');
-      callback(false)
+      // callback(false)
       return
     }
     if (start >= end) {
       AlertDialog.show('「開始時刻 < 終了時刻」である必要があります');
-      callback(false)
+      // callback(false)
       return
     }
     console.log(start)
@@ -108,7 +108,7 @@ const Receipts: React.FC = () => {
     console.log(bodies)
     setCsvs([headers, ...bodies])
     console.log([headers, ...bodies])
-    callback()
+    // callback()
   }
 
 
@@ -134,9 +134,9 @@ const Receipts: React.FC = () => {
         <Button onClick={() => setIsOpen(true)} variant="outline-dark">レシートアイテム追加</Button>
       </Stack>
       <Stack direction="horizontal" gap={3}>
-        {/* {csvs ? <CSVDownloader
+        {csvs ? <SaCSVLink
           datas={csvs}
-        /> : null} */}
+        /> : null}
           <Input
             id="start"
             type="datetime-local"
@@ -156,7 +156,9 @@ const Receipts: React.FC = () => {
               setEnd(Math.floor(dt.getTime() / 1000))
             }}
           />
-        <SaCSVLink datas={csvs || []} onClick={(event, done) => getCsvs(done)}>CSV</SaCSVLink>
+        <Button onClick={getCsvs} variant="outline-dark" className="ms-auto">CSV</Button>
+        {/* <SaCSVLink datas={csvs || []} onClick={(event, done) => getCsvs(done)}>CSV</SaCSVLink> */}
+        {/* <Button></Button> */}
       </Stack>
       <Dialog
         title_text="レシートアイテム追加"

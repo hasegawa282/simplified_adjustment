@@ -10,12 +10,13 @@ interface Param {
         key: string;
     }[];
     datas: any[];
-    onClick: (event: React.MouseEventHandler<HTMLAnchorElement>, done: (proceed?: boolean | undefined) => void) => Promise<void>;
+    // onClick: (event: React.MouseEventHandler<HTMLAnchorElement>, done: (proceed?: boolean | undefined) => void) => Promise<void>;
 }
 export default class SaCSVLink extends React.Component<Param> {
   render() {
+    console.log(this.props.datas)
     return (
-      <CSVLink {...this.props} data={this.props.datas} target="_blank" onClick={this.props.onClick} asyncOnClick={true}/>
+      <CSVDownload {...this.props} data={this.props.datas} target="_blank" />
     )
   }
 }
