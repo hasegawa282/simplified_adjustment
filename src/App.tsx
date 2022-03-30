@@ -45,7 +45,7 @@ const App: React.FC = () => {
   }}>
     {/* <img src={bg_image} /> */}
     <AmplifyAuthenticator>
-      <AmplifySignIn slot="sign-in" hideSignUp={false} />
+      <AmplifySignIn slot="sign-in" hideSignUp={true} />
     </AmplifyAuthenticator>
     </div>
     :
