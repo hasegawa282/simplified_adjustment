@@ -1,6 +1,6 @@
 // -- basic library --
 import React from 'react';
-import { CSVDownload, CSVLink, } from "react-csv";
+import { CSVDownload} from "react-csv";
 
 // -- external components --
 

@@ -1,8 +1,6 @@
 import React from 'react';
-import styled from 'styled-components';
 // import styles from 'utils/styles';
 import { Modal, Button} from 'react-bootstrap';
-import ModalHeader from 'react-bootstrap/esm/ModalHeader';
 
 
 /**

@@ -1,15 +1,11 @@
-import {ReceiptItemHistory } from 'api/receipt'
-
-export interface Vector {
-  x: number;
-  y: number;
-}
+import { ReceiptItemHistory } from 'api/receipt'
+import { SizeWH, VectorXY } from 'utils/types'
 
 export interface AnnotationVector {
-  top_left: Vector;
-  top_right: Vector;
-  bottom_right: Vector;
-  bottom_left: Vector;
+  top_left: VectorXY;
+  top_right: VectorXY;
+  bottom_right: VectorXY;
+  bottom_left: VectorXY;
 }
 
 
@@ -92,6 +88,7 @@ const get_unmatched_string = (black_patterns: string[], str: string) => {
   let flag = false
   for (let i = 0; i < black_patterns.length; i++) {
     if (str.match(black_patterns[i])) {
+      console.log(str.match(black_patterns[i]))
       flag = true
       break
     }
@@ -113,35 +110,43 @@ const get_matched_string = (type: 'date' | 'time', str: string) => {
 }
 
 // canvasにアノテーション画像を埋める関数
-const setAnnotationImageToCanvas = (canvasRef: React.MutableRefObject<null>, annotation_datas: AnnotationVector[], img_src: string, setSize: (size: { width: number, height: number }) => void) => {
-  if (canvasRef === null) return null
-  const canvas: any = canvasRef.current
+const setAnnotationImageToCanvas = (
+  p: {
+    canvasRef: React.MutableRefObject<null>, 
+    annotation_datas: AnnotationVector[], 
+    img_src: string, 
+    setSize: (size: { width: number, height: number }) => void, 
+  }
+  ) => {
+  if (p.canvasRef === null) return null
+  const canvas: any = p.canvasRef.current
   if (canvas === null) return null
   const ctx: CanvasRenderingContext2D = canvas.getContext('2d');
   // imageの読み込み同期処理
   // const promise =  new Promise(() => {
   let img = new Image()
   // 読み込み開始
-  img.src = img_src;
+  img.src = p.img_src;
   console.log(img.width)
 
   // 読み込み完了後
   img.onload = () => {
     const image_ratio = 200 / img.width
-    setSize({
+    p.setSize({
       width: image_ratio * img.width,
       height: image_ratio * img.height,
     })
     ctx.drawImage(img, 0, 0, image_ratio * img.width, image_ratio * img.height)
-    for (let j = 0; j < annotation_datas.length; j++) {
+    const ads = p.annotation_datas
+    for (let j = 0; j < ads.length; j++) {
       ctx.strokeStyle = '#5AFF19'
       ctx.lineWidth = 1
       ctx.beginPath()
-      ctx.moveTo(image_ratio * annotation_datas[j].top_left.x, image_ratio * annotation_datas[j].top_left.y)
-      ctx.lineTo(image_ratio * annotation_datas[j].top_right.x, image_ratio * annotation_datas[j].top_right.y)
-      ctx.lineTo(image_ratio * annotation_datas[j].bottom_right.x, image_ratio * annotation_datas[j].bottom_right.y)
-      ctx.lineTo(image_ratio * annotation_datas[j].bottom_left.x, image_ratio * annotation_datas[j].bottom_left.y)
-      ctx.lineTo(image_ratio * annotation_datas[j].top_left.x, image_ratio * annotation_datas[j].top_left.y)
+      ctx.moveTo(image_ratio * ads[j].top_left.x, image_ratio * p.annotation_datas[j].top_left.y)
+      ctx.lineTo(image_ratio * ads[j].top_right.x, image_ratio *ads[j].top_right.y)
+      ctx.lineTo(image_ratio * ads[j].bottom_right.x, image_ratio * ads[j].bottom_right.y)
+      ctx.lineTo(image_ratio * ads[j].bottom_left.x, image_ratio * ads[j].bottom_left.y)
+      ctx.lineTo(image_ratio * ads[j].top_left.x, image_ratio * ads[j].top_left.y)
       ctx.stroke()
     }
     ctx.save()
@@ -150,7 +155,12 @@ const setAnnotationImageToCanvas = (canvasRef: React.MutableRefObject<null>, ann
 
 
 // レシートをgoogle vision apiに送信して情報を抜き取り、アノテーション画像を描画する関数
-export const detectReceipt = async (file: File | null, canvasRef: React.MutableRefObject<null>, setSize: (size: { width: number, height: number }) => void) => {
+export const detectReceipt = async (p: {
+  file: File | null, 
+  canvasRef: React.MutableRefObject<null>, 
+  setSize: (size: SizeWH) => void
+}) => {
+  const file = p.file
   if (!file) {
     console.log('file入力は必須')
     return
@@ -196,7 +206,7 @@ export const detectReceipt = async (file: File | null, canvasRef: React.MutableR
   let xhr = new XMLHttpRequest();
   xhr.open('POST', `${url}?key=${api_key}`, true);
   xhr.setRequestHeader('Content-Type', 'application/json');
-  const p = new Promise((resolve, reject) => {
+  const pro = new Promise((resolve, reject) => {
     xhr.onreadystatechange = () => {
       console.log(xhr)
       if (xhr.readyState !== XMLHttpRequest.DONE) return;
@@ -205,7 +215,7 @@ export const detectReceipt = async (file: File | null, canvasRef: React.MutableR
     };
   })
   xhr.send(JSON.stringify(body));
-  const res: any = await p
+  const res: any = await pro
   console.log(res)
   const lines = get_sorted_lines(res.responses)
   const items: ReceiptItemHistory[] = []
@@ -215,10 +225,10 @@ export const detectReceipt = async (file: File | null, canvasRef: React.MutableR
   let unixtime = 0 // 秒
 
   // 金額の部分の型:ここに存在しているパターンであれば商品と金額として読み取る
-  const white_patterns = [/^[\d,]+[%*＊xX※※]$/u, /^¥[\d,]+$/u, /^[%*＊xX※※¥][\d,]+$/u, /^[\d,]+$/u,]
+  const white_patterns = [/^[\d,]+[%*＊xX※※]+$/u, /^¥[\d,]+$/u, /^[%*＊xX※※¥]+[\d,]+$/u, /^[\d,]+$/u,]
   // 金額の中でも税金や合計などを抜くためのブラックリスト
   // const black_patterns = ['合計', '小計', '現計', '代金', '金額', '値引', '税', '預', '釣', '交通系IC', '残高', '支払', 'QUIC', 'PAY', 'Pay']
-  const black_patterns = ['合計', '小計', '現計']
+  const black_patterns = ['合計', '小計', '現計', '計']
   //このflagが立ったらそれより下の項目に関しては読み取らない
   let red_flag = false
   for (let i = 0; i < lines.lines.length; i++) {
@@ -263,25 +273,29 @@ export const detectReceipt = async (file: File | null, canvasRef: React.MutableR
         time = t
       }
     }
+    console.log(`date=${date}, time=${time}`)
     // 想定しているレシートは日付の後にレシートの項目が存在するので、日付と時間が読み込まれるまではcontinue
-    if(!time.length || !date.length) continue
+    if(!time.length && !date.length) continue
     if(unixtime <= 0){
       date = date.replace('年', '/')
       date = date.replace('月', '/')
       date = date.replace('日', '')
-      time += ':00'
-      const dt_str = date + ' ' + time
+      // time += ':00'
+      // 一旦timeは無視する
+      let dt_str = date + ' ' + '00:00:00'
       const dt = new Date(dt_str)
       unixtime = Math.floor(dt.getTime() / 1000)
     }
 
     // 文章中にblack_patternsの文字が含まれていればそれ以降は読み取らない
     const unmatched_string = get_unmatched_string(black_patterns, texts.join(k))
+    console.log(`unmatched_string=${unmatched_string}`)
     if (unmatched_string) {
       red_flag = true
       break
     }
     // max_margin_indexが最初の要素の場合は不適切
+
     if(max_margin_index <= 0) continue
     const names = texts.slice(0, max_margin_index + 1)
     const prices = texts.slice(max_margin_index + 1)
@@ -293,7 +307,7 @@ export const detectReceipt = async (file: File | null, canvasRef: React.MutableR
     let is_draw = false
     for (let j = 0; j < white_patterns.length; j++) {
       const result1 = white_patterns[j].test(text_price);
-      // console.log(text_price, result1)
+      console.log(text_price, result1)
       if (result1) {
         const price = text_price.replace(/\D/u, '')
         is_draw = true
@@ -346,8 +360,12 @@ export const detectReceipt = async (file: File | null, canvasRef: React.MutableR
   console.log(date, time)
   console.log(items)
   console.log(annotations)
-  console.log(canvasRef)
-  const r = setAnnotationImageToCanvas(canvasRef, annotations, base64result, setSize)
+  const r = setAnnotationImageToCanvas({
+    canvasRef: p.canvasRef, 
+    annotation_datas: annotations, 
+    img_src: base64result, 
+    setSize: p.setSize, 
+  })
   console.log(r)
   return {
     items: items,

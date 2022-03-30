@@ -19,6 +19,8 @@ import { convertDateIntoYMDHM } from 'functions/operateDate';
 import { detectReceipt } from 'functions/detectReceipt';
 import getMode from 'functions/getMode';
 import convertStringToNumber from 'functions/convertStringToNumber';
+// -- external types --
+import { SizeWH } from 'utils/types'
 
 interface Param {
   onDialogClose: () => void;
@@ -37,14 +39,18 @@ const ReceiptItemHistoryInputPanel: React.FC<Param> = (param) => {
     tax: 1,
   }])
   const [file, setFile] = useState<File | null>(null)
-  const [size, setSize] = useState<{ width: number, height: number }>({
+  const [size, setSize] = useState<SizeWH>({
     width: 100,
     height: 100,
   })
 
   const canvasRef = useRef(null)
-  const setReceiptOCRData = async (file: File | null, canvasRef: React.MutableRefObject<null>, setSize: (size: { width: number; height: number }) => void) => {
-    const res = await detectReceipt(file, canvasRef, setSize)
+  const setReceiptOCRData = async () => {
+    const res = await detectReceipt({
+      file: file, 
+      canvasRef:canvasRef, 
+      setSize: setSize
+    })
     console.log(res)
     if(!res) return
     const new_items: ReceiptItemHistory[] = []
@@ -198,11 +204,16 @@ const ReceiptItemHistoryInputPanel: React.FC<Param> = (param) => {
         <Form.Group controlId="formFile" className="mb-3">
             <Form.Control type="file" onChange={onfileChange} accept="image/png, image/jpeg" />
           </Form.Group>
-          <Button onClick={() => setReceiptOCRData(file, canvasRef, (size: { width: number, height: number }) => setSize(size))} variant="outline-dark">OCR</Button>
+          <Button onClick={setReceiptOCRData} variant="outline-dark">OCR</Button>
         </Stack>
         <Stack>
           <Stack>
-            <canvas className="canvas" ref={canvasRef} width={size.width} height={size.height} />
+            <canvas 
+            className="canvas" 
+            ref={canvasRef} 
+            height={size.height}
+            width={size.width}
+            style={{width: size.width, height: 'auto'}}/>
           </Stack>
         </Stack>
       </Stack>

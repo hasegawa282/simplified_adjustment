@@ -1,7 +1,7 @@
 // -- basic library --
 import React from 'react';
 import styled from 'styled-components';
-import {Button, Modal, ModalProps } from 'react-bootstrap';
+import { Modal, ModalProps } from 'react-bootstrap';
 
 // -- external components --
 // import styles from 'utils/styles';
