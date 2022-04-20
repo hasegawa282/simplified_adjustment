@@ -45,7 +45,6 @@ export const getReceiptItemHistories = async (param: {
     queryStringParameters: param,
   };
   const res = await API.get('receipt', '/receipt', myInit)
-  console.log(res)
   return res
 }
 
@@ -65,7 +64,6 @@ export const getReceiptItemHistories = async (param: {
 // [POST] /receiptItemHistoryPost
 export const postReceiptItemHistory = async (param: ReceiptItemHistory) => {
   const token = await getToken()
-  console.log(token)
   const myInit = {
     headers: {
       Authorization: token,
