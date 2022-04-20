@@ -110,6 +110,16 @@ const ReceiptItemHistoryInputPanel: React.FC<Param> = (param) => {
     setInputDatas(input_datas.slice(0, -1))
   }
 
+  const deleteInputData = (index: number) => {
+    if(input_datas.length <= index || index < 0){
+      return
+    }
+    if (input_datas.length <= 1) {
+      return
+    }
+    setInputDatas([...input_datas.slice(0, index), ...input_datas.slice(index+1)])
+  }
+
   // レシートの入力が変化した時を担う関数
   const onChangeInputDatas = (prop: {
     key: string;
@@ -221,13 +231,13 @@ const ReceiptItemHistoryInputPanel: React.FC<Param> = (param) => {
       <Stack>
         <Stack direction="horizontal" gap={2}>
           <IconButton onClick={addInputDatas} className="ms-auto"><Icon.PlusCircleFill size={styles.icon_size} /></IconButton>
-          <IconButton onClick={decreaseInputDatas}><Icon.DashCircleFill size={styles.icon_size} color="red" /></IconButton>
+          {/* <IconButton onClick={decreaseInputDatas}><Icon.DashCircleFill size={styles.icon_size} color="red" /></IconButton> */}
         </Stack>
         <Stack>
           <Table responsive striped bordered hover>
             <thead>
               <tr>
-                {['日付', '商品名', 'カテゴリー', '購入者', '使用者', '価格', '税'].map((head, index) => {
+                {['', '日付', '商品名', 'カテゴリー', '購入者', '使用者', '価格', '税'].map((head, index) => {
                   return <th key={`${index}_${head}`}>{head}</th>
                 })}
               </tr>
@@ -235,6 +245,9 @@ const ReceiptItemHistoryInputPanel: React.FC<Param> = (param) => {
             <tbody>
               {input_datas.map((input_data, index) => (
                 <tr key={index}>
+                  <td>
+                    <IconButton onClick={() => deleteInputData(index)}><Icon.DashCircleFill size={styles.icon_size} color="red" /></IconButton>
+                  </td>
                   <td>
                     <Input
                       id="date"

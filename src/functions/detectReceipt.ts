@@ -285,6 +285,7 @@ export const detectReceipt = async (p: {
       let dt_str = date + ' ' + '00:00:00'
       const dt = new Date(dt_str)
       unixtime = Math.floor(dt.getTime() / 1000)
+      continue
     }
 
     // 文章中にblack_patternsの文字が含まれていればそれ以降は読み取らない
