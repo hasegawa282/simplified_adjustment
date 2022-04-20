@@ -6,4 +6,8 @@ export interface SizeWH {
 export interface VectorXY {
     x: number;
     y: number;
-  }
+}
+
+export interface ObjectType<T> {
+    [key: string]: T;
+}
